@@ -1,5 +1,6 @@
 # Load data from Amerilife_STG
 sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;UID=SQLserverR_user;PWD=Amerilife01"
+# sConnection <- "Driver=SQL Server;Server=JOSE;Database=Amerilife_STG;UID=SQLserverR_user;PWD=Amerilife01"
 # sQuery <- "select * from staging.SSAS_Discovery_Typed"
 sTable <- "staging.SSAS_Discovery_Typed"
 
