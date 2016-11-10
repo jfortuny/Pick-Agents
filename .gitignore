@@ -241,3 +241,5 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /Pick Agents/data/DiscoveryAgents.xdf
+/Pick Agents/data/dfBase.Rda
+/Pick Agents/data/DiscoveryAgentsRecoded.xdf
