@@ -5,7 +5,7 @@
 sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
 sqlTableName <- "staging.SSAS_Discovery_Recoded"
 
-# Summarize the data by Agent and only for direct contracts
+# Summarize the data by Agent 
 sQuery <- "
 SELECT  [pk] = MIN([pk])
 ,[Agent] = MIN([Agent])
@@ -56,9 +56,8 @@ SELECT  [pk] = MIN([pk])
 ,[PaymentCountSinceInception] = SUM([PaymentCountSinceInception])
 ,RecordCount = COUNT(*)
 FROM [staging].[SSAS_Discovery_Recoded]
-where IsDirectContract = 'Y'
 group by NPN
-order by NPN"
+"
 
 sqlDataTable <- RxSqlServerData(connectionString = sConnection,
     sqlQuery = sQuery)
@@ -79,6 +78,61 @@ row.names(df) <- df$pk
 #rxGetVarInfo(df)
 str(df)
 summary(df)
+
+# Single attribute analysis
+
+summary(df$PaymentCountSinceInception)
+summary(df$"12MonthRevenueFromContractCompleted")
+summary(df$"24MonthRevenueFromContractCompleted")
+
+# Commissions
+summary(df$Commission)
+# Between 1 and $1000
+dfPlot <- df %>%
+select(Commission) %>%
+filter(Commission <= 1000 & Commission > 0)
+ggplot(data = dfPlot, aes(x = Commission, y = ..density..)) +
+geom_histogram(binwidth = 10, color="grey60", size=0.2) +
+geom_density(color="red", size=1)
+# Between -1 and -$1000
+dfPlot <- df %>%
+select(Commission) %>%
+filter(Commission < 0 & Commission >= -1000)
+ggplot(data = dfPlot, aes(x = Commission, y = ..density..)) +
+geom_histogram(binwidth = 10, color = "grey60", size = 0.2) +
+geom_density(color = "red", size = 1)
+# Between -$1000 and $1000
+dfPlot <- df %>%
+select(Commission) %>%
+filter(Commission <= 1000 & Commission >= -1000)
+ggplot(data = dfPlot, aes(x = Commission, y = ..density..)) +
+geom_histogram(binwidth = 10, color = "grey60", size = 0.2) +
+geom_density(color = "red", size = 1)
+# Above $1000
+dfPlot <- df %>%
+select(Commission) %>%
+filter(Commission > 1000)
+ggplot(data = dfPlot, aes(x = Commission, y = ..density..)) +
+geom_histogram(binwidth = 10000, color = "grey60", size = 0.2) +
+geom_density(color = "red", size = 1)
+# All
+dfPlot <- df %>%
+select(Commission)
+ggplot(data = dfPlot, aes(x = Commission, y = ..density..)) +
+geom_histogram(binwidth = 1000, color = "grey60", size = 0.2) +
+geom_density(color = "red", size = 1)
+
+
+# RevenueSinceInception
+summary(df$RevenueSinceInception)
+dfPlot <- df %>%
+select(RevenueSinceInception) %>%
+filter(RevenueSinceInception <= 200 & RevenueSinceInception >= 0)
+ggplot(data = dfPlot, aes(x = RevenueSinceInception)) +
+geom_histogram(binwidth = 5)
+
+
+# Bi-variate analysis of attributes
 
 # Select a subset of the columns
 #dfBase <- df %>%
