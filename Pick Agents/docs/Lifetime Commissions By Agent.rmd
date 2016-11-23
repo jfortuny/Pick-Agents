@@ -20,7 +20,9 @@ library(cowplot)
 library(knitr)
 
 # load the data form SQL Server
-sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
+sConnection <- "Driver=SQL Server;Server=JOSE;Database=Amerilife_STG;Trusted_Connection=TRUE"
+#sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
+sqlTableName <- "staging.SSAS_Discovery_Recoded"
 sqlTableName <- "staging.SSAS_Discovery_Recoded"
 
 # Summarize the data by Agent 
@@ -113,7 +115,7 @@ The Commissions range from a low (debt) of about $28,000 to a positive contribut
 is heavily skewed, with a large contingen of agents that either do not contribute revenue to AmeriLife or are a debt burden
 to the organization. The basic statistics of this distribution are:
 
-```{r}
+```{r, echo = FALSE}
 # Commissions
 summary(df$Commission) 
 ```
@@ -225,7 +227,11 @@ p4
 Does the Agent's ability to generate revenue for AmeriLife happen shortly after the Agent is Contracted or does it take
 a long time? In this section we present the same graphs that were developed above for Lifetime Commissions but focus 
 exclusively on the Commissions that an Agent generates thorugh a contract during the first 12 
-months from the Contract Completed date.
+months from the Contract Completed date. 
+
+There is one caveat to this analysis: We do not eliminate any contracts from the analysis even if the contract has not 
+accumulated 12 months of revenue from its contract completed date. Since there is a large population of contracts it's
+expected that these contracts under 12 months old will not unduly influence the analysis.
 
 ```{r, echo = FALSE}
 # All
@@ -241,7 +247,7 @@ labs(x = "First 12 Month Revenue From CC", y = "Frequency")
 The Commissions range form a low (debt) of $6,500 to a high of just over $212,000; this distribution of values is 
 also heavily skewed as was the distribution of lifetime commissions. The basis statistics of this distribution are:
 
-```{r}
+```{r, echo = FALSE}
 # First Year Commissions (from Contrct Completed)
 summary(df$`12MonthRevenueFromContractCompleted`)
 ```
@@ -336,3 +342,19 @@ grid.arrange(p1, fy1, ncol = 2, nrow = 1)
 
 ```
 
+
+# Appendix A: The highest producers
+
+This is a list of the agents that have generated revenue for AmeriLife in excess of $5,000 during their lifetime, ordered by the revenue generated.
+
+```{r, echo = FALSE, results = 'topAgents <- df %>% 
+select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>% 
+filter(Commission >= 5000) %>%
+arrange(Commission)
+kable(topAgents),'}
+topAgents <- df %>% 
+select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>% 
+filter(Commission >= 5000) %>%
+arrange(Commission)
+kable(topAgents)
+```
