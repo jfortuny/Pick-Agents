@@ -1,86 +1,6 @@
-# load XDF file
-#dfDiscovery <- rxImport(inData = "./data/DiscoveryAgentsRecoded.xdf")
+# Read data only from Amerilife_STG; mostly done for single variable analysis.
+source("~/Visual Studio 2015/Projects/Pick-Agents/Pick Agents/code/sourceAmerilife_STG.R", encoding = "Windows-1252")
 
-# load the data form SQL Server
-sConnection <- "Driver=SQL Server;Server=JOSE;Database=Amerilife_STG;Trusted_Connection=TRUE"
-#sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
-sqlTableName <- "staging.SSAS_Discovery_Recoded"
-
-# Summarize the data by Agent 
-sQuery <- "
-SELECT  [pk] = MIN([pk])
-,[Agent] = MIN([Agent])
-,[NPN]
-,[CRMGender] = MIN([CRMGender])
-,[CRMCounty] = MIN([CRMCounty])
-,[CRMState] = MIN([CRMState])
-,[CRMZipCode] = MIN([CRMZipCode])
-,[HasKits] = MAX([HasKits])
-,[HasContracts] = MAX([HasContracts])
-,[IsDirectContract] = max(isDirectContract)
-,[HasCommissionPayments] = MAX([HasCommissionPayments])
-,[DSCPrimaryAddressType] = MIN([DSCPrimaryAddressType])
-,[DSCPrimaryCounty] = MIN([DSCPrimaryCounty])
-,[DSCPrimaryMetropolitanArea] = MIN([DSCPrimaryMetropolitanArea])
-,[DSCPrimaryZipCode] = MIN([DSCPrimaryZipCode])
-,[DSCPrimaryZipCode3DigitSectional] = MIN([DSCPrimaryZipCode3DigitSectional])
-,[DSCDateOfBirthYear] = MIN([DSCDateOfBirthYear])
-,[DSCGenderCode] = MIN([DSCGenderCode])
-,[DSCAgentLicenseTypeHealth] = MIN([DSCAgentLicenseTypeHealth])
-,[DSCAgentLicenseTypeLife] = MIN([DSCAgentLicenseTypeLife])
-,[DSCAgentLicenseTypeVariableProducts] = MIN([DSCAgentLicenseTypeVariableProducts])
-,[DSCAgentLicenseTypePropertyCasualty] = MIN([DSCAgentLicenseTypePropertyCasualty])
-,[DSCNumberStateLicensesHealth] = MIN([DSCNumberStateLicensesHealth])
-,[DSCNumberStateLicensesLife] = MIN([DSCNumberStateLicensesLife])
-,[DSCNumberStateLicensesVariableProducts] = MIN([DSCNumberStateLicensesVariableProducts])
-,[DSCNumberStateLicensesPropertyCasualty] = MIN([DSCNumberStateLicensesPropertyCasualty])
-,[DSCStateLicensedCount] = MIN([DSCStateLicensedCount])
-,[DSCSellsRetirementPlanProducts] = MIN([DSCSellsRetirementPlanProducts])
-,[DSCCarrierAppointments] = MIN([DSCCarrierAppointments])
-,[DSCAppointmentCount] = MIN([DSCAppointmentCount])
-,[DSCYearsOfExperience] = MIN([DSCYearsOfExperience])
-,[DSCEarliestAppointmentDate] = MIN([DSCEarliestAppointmentDate])
-,[DSCDuallyLicensed] = MIN([DSCDuallyLicensed])
-,[DSCInCRD] = MIN([DSCInCRD])
-,[DSCRIAAffiliation] = MIN([DSCRIAAffiliation])
-,[DSCBDRIARep] = MIN([DSCBDRIARep])
-,[DSCBrokerDealerAffiliation] = MIN([DSCBrokerDealerAffiliation])
-,[12MonthRevenueFromContractCompleted] = SUM([12MonthRevenueFromContractCompleted])
-,[12MonthRevenueFromContractEffective] = SUM([12MonthRevenueFromContractEffective])
-,[12MonthFromFirstRevenue] = SUM([12MonthFromFirstRevenue])
-,[24MonthRevenueFromContractCompleted] = SUM([24MonthRevenueFromContractCompleted])
-,[24MonthRevenueFromContractEffective] = SUM([24MonthRevenueFromContractEffective])
-,[24MonthFromFirstRevenue] = SUM([24MonthFromFirstRevenue])
-,[RevenueSinceInception] = SUM([RevenueSinceInception])
-,[PolicyCount] = SUM([PolicyCount])
-,[Payments] = SUM([Payments])
-,[Commission] = SUM([Commission])
-,[PaymentCountSinceInception] = SUM([PaymentCountSinceInception])
-,RecordCount = COUNT(*)
-FROM [staging].[SSAS_Discovery_Recoded]
-group by NPN
-"
-
-sqlDataTable <- RxSqlServerData(connectionString = sConnection,
-    sqlQuery = sQuery)
-    #table = sqlTableName)
-df <- rxImport(inData = sqlDataTable,
-    rowsPerRead = 10000,
-    stringsAsFactors = TRUE)
-
-# Common libraries
-library(ggplot2)
-library(car)
-library(dplyr)
-library(corrplot)
-library(gplots)
-library(gridExtra)
-library(cowplot)
-library(corrplot)
-
-# Set the row names to the pk from SQL
-row.names(df) <- df$pk
-#rxGetVarInfo(df)
 str(df)
 summary(df)
 
@@ -289,20 +209,20 @@ labs(x = "Total Debt", y = "Counts")
 
 ###############################################################################################
 # Top producers
-topAgents <- df %>% 
-select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>% 
+topAgents <- df %>%
+select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>%
 filter(Commission >= 5000) %>%
 arrange(Commission)
 kable(topAgents)
 ###############################################################################################
 
-# Bi-variate analysis of attributes
+# Bi-variate analysis of numeric attributes
 plot(df$Commission ~ df$DSCYearsOfExperience)
 
 dfBase <- df %>% filter(Commission >= 500) %>% select(c(Commission, DSCYearsOfExperience))
 plot(dfBase$Commission ~ dfBase$DSCYearsOfExperience)
 
-dfBase <- df %>% filter(Commission >= 500 & Commission <=5000) %>% select(c(Commission, DSCYearsOfExperience))
+dfBase <- df %>% filter(Commission >= 500 & Commission <= 5000) %>% select(c(Commission, DSCYearsOfExperience))
 plot(dfBase$Commission ~ dfBase$DSCYearsOfExperience)
 dfBaseComplete <- complete.cases(dfBase)
 y <- dfBase[dfBaseComplete,] %>% select(c(Commission))
@@ -312,19 +232,46 @@ cor(x, y) # Not correlated
 # In bulk - Commissions only
 names(df)[c(23, 24, 25, 26, 27, 30, 31, 47)]
 cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)])
+cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)], use = "complete.obs")
 corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)], use = "complete.obs"), upper = "ellipse", tl.pos = "lt",
-    col=colorpanel(50, "red", "gray60", "blue4"))
+    col = colorpanel(50, "red", "gray60", "blue4"))
 
-names(df)[c(17, 23, 24, 25, 26, 27, 30, 31, 38:49)]
+dfBaseComplete <- complete.cases(df)
+scatterplotMatrix(df[dfBaseComplete, c(23, 24, 25, 26, 27, 30, 31, 47)], diagonal = "histogram")
+
+# In bulk - All revenue metrics
+names(df)[c(23, 24, 25, 26, 27, 30, 31, 38:49)]
+cor(df[, c(23, 24, 25, 26, 27, 30, 31, 38:49)])
+corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 38:49)], use = "complete.obs"), upper = "ellipse", tl.pos = "lt",
+    col = colorpanel(50, "red", "gray60", "blue4"))
+
+# scatterplotMatrix(df[dfBaseComplete, c(23, 24, 25, 26, 27, 30, 31, 38:49)], diagonal = "histogram")
+
+###########################################################################################################
+# So it appears that the AmeriLife revenue is not related to the numeric attributes of a Discovery Agent. #
+###########################################################################################################
+# As expected all revenue metrics from the DW are highly cvorrelated amongst themselves, with Commission  #
+# showing the strongest correlation to all other revenue metrics, in any of its variants and leaving the  #
+# policy metrics (RevenueSinceInception, PolicyCount, Payments and PaymentCountSinceInception) out of the #
+# analysis, as well as the RecordCount metric.                                                            #
+###########################################################################################################
+
+# Bi-variate analysis of categorical attributes
 
 # Select a subset of the columns
 #dfBase <- df %>%
 #select(starts_with("CRM"), starts_with("Has"), starts_with("DSC"), contains("Revenue"), 
     #PolicyCount, Payments, Commission, PaymentCountSinceInception, RecordCount)
 dfBase <- df %>%
-select(CRMGender, CRMState, DSCPrimaryAddressType, DSCNumberStateLicensesHealth,
-DSCNumberStateLicensesLife, DSCNumberStateLicensesVariableProducts, 
-DSCNumberStateLicensesPropertyCasualty, Commission)
+select(CRMGender, CRMState, CRMZipCode, DSCGenderCode,
+    DSCPrimaryAddressType, DSCPrimaryMetropolitanArea, DSCPrimaryZipCode, DSCPrimaryZipCode3DigitSectional,
+    DSCAgentLicenseTypeHealth, DSCAgentLicenseTypeLife, DSCAgentLicenseTypeVariableProducts,
+    DSCAgentLicenseTypePropertyCasualty, DSCSellsRetirementPlanProducts, DSCCarrierAppointments,
+    DSCDuallyLicensed, DSCInCRD, DSCRIAAffiliation, DSCBDRIARep, DSCBrokerDealerAffiliation,
+    Commission)
+
+dfBaseComplete <- complete.cases(df)
+names(df)[c(13:16, 18:22, 28, 29, 33:37, 47)]
 
 #save(dfBase, file = "./data/dfBase.Rda")
 
