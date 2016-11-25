@@ -266,11 +266,7 @@ grid.arrange(p1, fy1, ncol = 2, nrow = 1)
 
 This is a list of the agents that have generated revenue for AmeriLife in excess of $5,000 during their lifetime, ordered by the revenue generated.
 
-```{r, echo = FALSE, results = 'topAgents <- df %>% 
-select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>% 
-filter(Commission >= 5000) %>%
-arrange(Commission)
-kable(topAgents),'}
+```{r, echo = FALSE, results = 'as is'}
 topAgents <- df %>% 
 select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>% 
 filter(Commission >= 5000) %>%

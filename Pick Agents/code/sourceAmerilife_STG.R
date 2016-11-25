@@ -77,6 +77,8 @@ library(gplots)
 library(gridExtra)
 library(cowplot)
 library(corrplot)
+library(caret)
+library(knitr)
 
 # Set the row names to the pk from SQL
 row.names(df) <- df$pk

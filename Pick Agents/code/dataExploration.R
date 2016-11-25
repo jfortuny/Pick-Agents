@@ -14,6 +14,28 @@ summary(df)
 # Commissions
 summary(df$Commission)
 plot(df$Commission)
+hist(df$Commission)
+
+l2Commission <- log2(df$Commission+28000)
+hist(l2Commission)
+l10Commission <- log10(df$Commission + 28000)
+hist(l10Commission)
+lCommission <- log(df$Commission + 28000)
+hist(lCommission)
+
+par(mfrow=c(2,2))
+csCommission <- scale(df$Commission, center = FALSE, scale = FALSE)
+hist(csCommission, main = "No Center, No scaling")
+csCommission <- scale(df$Commission, center = TRUE, scale = FALSE)
+hist(csCommission, main = "Center")
+csCommission <- scale(df$Commission, center = FALSE, scale = TRUE)
+hist(csCommission, main = "Scaling")
+csCommission <- scale(df$Commission, center = TRUE, scale = TRUE)
+hist(csCommission, main = "Center, Scaling")
+par(mfrow=c(1,1))
+
+yjCommission <- yjPower(df$Commission + 28000, -0.5)
+plot(yjCommission)
 
 # All
 dfPlot <- df %>%
@@ -227,7 +249,7 @@ plot(dfBase$Commission ~ dfBase$DSCYearsOfExperience)
 dfBaseComplete <- complete.cases(dfBase)
 y <- dfBase[dfBaseComplete,] %>% select(c(Commission))
 x <- dfBase[dfBaseComplete,] %>% select(c(DSCYearsOfExperience))
-cor(x, y) # Not correlated
+cor(x, y) # Not correlated in the 500 to 5000 range?
 
 # In bulk - Commissions only
 names(df)[c(23, 24, 25, 26, 27, 30, 31, 47)]
@@ -235,9 +257,13 @@ cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)])
 cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)], use = "complete.obs")
 corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 47)], use = "complete.obs"), upper = "ellipse", tl.pos = "lt",
     col = colorpanel(50, "red", "gray60", "blue4"))
+# There appears to be a medium correlation (Cohen's Rules of Thumb) between 
+# Commissions and Years of Experience
 
 dfBaseComplete <- complete.cases(df)
 scatterplotMatrix(df[dfBaseComplete, c(23, 24, 25, 26, 27, 30, 31, 47)], diagonal = "histogram")
+# We need to examine carefully the influence of the extremes; thay appear to 
+# have large leverage
 
 # In bulk - All revenue metrics
 names(df)[c(23, 24, 25, 26, 27, 30, 31, 38:49)]
@@ -248,7 +274,8 @@ corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 38:49)], use = "com
 # scatterplotMatrix(df[dfBaseComplete, c(23, 24, 25, 26, 27, 30, 31, 38:49)], diagonal = "histogram")
 
 ###########################################################################################################
-# So it appears that the AmeriLife revenue is not related to the numeric attributes of a Discovery Agent. #
+# So it appears that the AmeriLife revenue is not related to the numeric attributes of a Discovery Agent  #
+# except perhaps Years of Experience                                                                      #
 ###########################################################################################################
 # As expected all revenue metrics from the DW are highly cvorrelated amongst themselves, with Commission  #
 # showing the strongest correlation to all other revenue metrics, in any of its variants and leaving the  #
@@ -264,18 +291,13 @@ corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 38:49)], use = "com
     #PolicyCount, Payments, Commission, PaymentCountSinceInception, RecordCount)
 dfBase <- df %>%
 select(CRMGender, CRMState, CRMZipCode, DSCGenderCode,
-    DSCPrimaryAddressType, DSCPrimaryMetropolitanArea, DSCPrimaryZipCode, DSCPrimaryZipCode3DigitSectional,
+    DSCPrimaryAddressType, DSCPrimaryMetropolitanArea, DSCPrimaryZipCode, DSCPrimaryZipCode3DigitSectional, DSCPrimaryCounty,
     DSCAgentLicenseTypeHealth, DSCAgentLicenseTypeLife, DSCAgentLicenseTypeVariableProducts,
     DSCAgentLicenseTypePropertyCasualty, DSCSellsRetirementPlanProducts, DSCCarrierAppointments,
     DSCDuallyLicensed, DSCInCRD, DSCRIAAffiliation, DSCBDRIARep, DSCBrokerDealerAffiliation,
     Commission)
 
-dfBaseComplete <- complete.cases(df)
-names(df)[c(13:16, 18:22, 28, 29, 33:37, 47)]
+#dfBaseComplete <- complete.cases(dfBase)
+#names(df)[c(13:16, 18:22, 28, 29, 33:37, 47)]
 
-#save(dfBase, file = "./data/dfBase.Rda")
-
-scatterplotMatrix(dfBase[,], diagonal = "histogram")
-corrplot.mixed(corr = cor(dfBase[, c( 4:8 )]),
-    upper = "ellipse", tl.pos = "lt",
-    col = colorpanel(50, "red", "gray60", "blue4"))
+plot(dfBase$Commission~dfBase$DSCGenderCode)
