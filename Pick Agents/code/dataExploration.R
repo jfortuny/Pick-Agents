@@ -283,6 +283,10 @@ corrplot.mixed(corr = cor(df[, c(23, 24, 25, 26, 27, 30, 31, 38:49)], use = "com
 # analysis, as well as the RecordCount metric.                                                            #
 ###########################################################################################################
 
+# Will the correlations be different if we scale and center the measures (or even if we make them
+# positive)?
+
+
 # Bi-variate analysis of categorical attributes
 
 # Select a subset of the columns
