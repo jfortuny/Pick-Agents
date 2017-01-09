@@ -2,8 +2,8 @@
 #dfDiscovery <- rxImport(inData = "./data/DiscoveryAgentsRecoded.xdf")
 
 # load the data form SQL Server
-sConnection <- "Driver=SQL Server;Server=JOSE;Database=Amerilife_STG;Trusted_Connection=TRUE"
-#sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
+#sConnection <- "Driver=SQL Server;Server=JOSE;Database=Amerilife_STG;Trusted_Connection=TRUE"
+sConnection <- "Driver=SQL Server;Server=FL-TPA-BI-01.alg.local;Database=Amerilife_STG;Trusted_Connection=TRUE"
 sqlTableName <- "staging.SSAS_Discovery_Recoded"
 
 # Summarize the data by Agent 

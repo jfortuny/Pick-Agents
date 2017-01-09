@@ -9,8 +9,22 @@ extract from the cubes. The data is, thus, accurate up to the previous night's p
 ```{r, echo = FALSE}
 # Load the Data and the required libraries
 # Read data only from Amerilife_STG; mostly done for single variable analysis.
-source("~/Visual Studio 2015/Projects/Pick-Agents/Pick Agents/code/sourceAmerilife_STG.R", encoding = "Windows-1252")
+source("~/visual studio 2015/projects/Pick Agents/Pick Agents/code/sourceAmerilife_STG.R", encoding = "Windows-1252")
 ```
+
+Generally speaking, the commissions that an Agent generates for AmeriLife will be a function of:
+
+* Agent attributes and abilities.
+* Size and Growth of prospective insured population in the Agent's territory of operation.
+* Products and Rates of Products the Agent sells and those of the competition.
+* Support the Agent receives from AmeriLife and affiliated companies.
+* Other/Unknown sources.
+
+In this doucment we will start our analysis by focusing on the Agent attributes that make a difference 
+in the Agent's impact on revenue generated for AmeriLife and start considering only the function: 
+_Revenue = f(Agent)_. As we go along we will add other descriptors to the function: 
+_Revenue = f(Agent, Population)_ in particular. 
+
 
 # Lifetime Commissions
 
