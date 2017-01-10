@@ -4,6 +4,8 @@ source("~/Visual Studio 2015/Projects/Pick-Agents/Pick Agents/code/sourceAmerili
 str(df)
 summary(df)
 
+#region Initial Analysis
+
 # Single attribute analysis
 
 #summary(df$PaymentCountSinceInception)
@@ -304,4 +306,34 @@ select(CRMGender, CRMState, CRMZipCode, DSCGenderCode,
 #dfBaseComplete <- complete.cases(dfBase)
 #names(df)[c(13:16, 18:22, 28, 29, 33:37, 47)]
 
-plot(dfBase$Commission~dfBase$DSCGenderCode)
+plot(dfBase$Commission ~ dfBase$DSCGenderCode)
+
+#endregion Initial Analysis
+
+
+#############################################################################################################
+# Verify top performars
+
+topAgents <- df %>%
+select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>%
+filter(Commission >= 5000) %>%
+arrange(Commission)
+
+table(topAgents$CRMState)
+topAgentsByState <- topAgents %>% count(CRMState) %>% arrange(desc(n))
+kable(topAgentsByState)
+
+# PR seems to have a large share of those; verifying Puerto Rico first
+PRtopAgents <- topAgents %>%
+filter(CRMState == "PR")
+PRtopAgents
+
+FLtopAgents <- topAgents %>%
+filter(CRMState == "FL")
+FLtopAgents
+
+# Find bad performers
+bottomAgents <- df %>%
+select(c(Agent, NPN, CRMGender, CRMState, CRMZipCode, Commission, PolicyCount)) %>%
+filter(Commission <= 0) %>%
+arrange(Commission)
