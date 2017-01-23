@@ -68,7 +68,7 @@ df <- rxImport(inData = sqlDataTable,
     rowsPerRead = 10000,
     stringsAsFactors = TRUE)
 
-# Summarize the data by Agent - Recode Nulls as "U"
+# Summarize the data by Agent - Recode Nulls as "U" and large factor counts as indicators only
 sQuery <- "
 SELECT  [pk] = MIN([pk])
 ,[Agent] = MIN([Agent])

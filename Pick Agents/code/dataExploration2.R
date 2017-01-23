@@ -1,16 +1,16 @@
 # Read data only from Amerilife_STG; mostly done for single variable analysis.
 source("~/visual studio 2015/projects/Pick Agents/Pick Agents/code/sourceAmerilife_STG.R", encoding = "Windows-1252")
 
-dfr <- df
-library(gdata)
-NAToUnknown(dfr$CRMGender, "Z")
+#dfr <- df
+#library(gdata)
+#NAToUnknown(dfr$CRMGender, "Z")
 
 
 
 
-summary(dfr$CRMCounty)
-levels(dfr$CRMCounty) <- c("U", levels(dfr$CRMCounty))
-dfr$CRMCounty[is.na(dfr$CRMCounty)] <- "U"
+#summary(dfr$CRMCounty)
+#levels(dfr$CRMCounty) <- c("U", levels(dfr$CRMCounty))
+#dfr$CRMCounty[is.na(dfr$CRMCounty)] <- "U"
 
 str(df)
 summary(df)
@@ -27,7 +27,7 @@ hist(asinh(test), breaks = 10)
 hist(asinh(test), breaks = 20)
 
 shiftedTest <- test + 15
-par(mfrow=c(2,3))
+par(mfrow = c(2, 3))
 hist(shiftedTest)
 hist(shiftedTest, breaks = 10)
 hist(shiftedTest, breaks = 20)
@@ -80,20 +80,24 @@ hist(asinh(comm), breaks = 5, main = "asinh of Commisisons Shifted 5 breaks")
 #endregion asinh on test data created manually
 
 
-
-
 # Brute force regression
-#descriptors <- names(df)
+descriptors <- names(dfr)
 
-df.complete <- complete.cases(df)
-sum(df.complete)
-summary(df)
-levels(df$DSCAgentLicenseTypeHealth) <- c('Y', 'N')
-levels(df$DSCAgentLicenseTypeLife) <- c('Y', 'N')
-levels(df$DSCAgentLicenseTypeVariableProducts) <- c('Y', 'N')
-levels(df$DSCAgentLicenseTypePropertyCasualty) <- c('Y', 'N')
-levels(df$DSCSellsRetirementPlanProducts) <- c('Yes', 'No')
-levels(df$DSCDuallyLicensed) <- c('N', 'Y')
+# test for Commisisons
+comm <- df$Commission + 30000
+range(comm)
+dfr$comm <- comm
+
+head(dfr)
+dfrComplete <-
+dfr %>% dplyr::select(comm, HasKits,
+DSCPrimaryAddressType, DSCPrimaryZipCode, DSCPrimaryZipCode3DigitSectional,
+DSCDateOfBirthYear, DSCGenderCode,
+DSCAgentLicenseTypeHealth, DSCAgentLicenseTypeLife, DSCAgentLicenseTypeVariableProducts, DSCAgentLicenseTypePropertyCasualty,
+DSCNumberStateLicensesHealth, DSCNumberStateLicensesLife, DSCNumberStateLicensesVariableProducts, DSCNumberStateLicensesPropertyCasualty,
+DSCStateLicensedCount, DSCSellsRetirementPlanProducts,
+DSCCarrierAppointments, DSCAppointmentCount, DSCYearsOfExperience, DSCEarliestAppointmentDate,
+DSCInCRD, DSCRIAAffiliation, DSCBrokerDealerAffiliation)
 
 
 lm1 <- lm(comm ~
@@ -122,4 +126,4 @@ DSCDuallyLicensed +
 DSCInCRD +
 DSCRIAAffiliation +
 DSCBrokerDealerAffiliation,
-data = df)
+data = dfrComplete)
